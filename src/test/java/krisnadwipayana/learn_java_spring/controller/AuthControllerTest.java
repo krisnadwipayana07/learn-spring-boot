@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import krisnadwipayana.learn_java_spring.entity.User;
 import krisnadwipayana.learn_java_spring.model.LoginUserRequest;
+import krisnadwipayana.learn_java_spring.model.TokenResponse;
 import krisnadwipayana.learn_java_spring.model.WebResponse;
 import krisnadwipayana.learn_java_spring.repository.UserRepository;
 import krisnadwipayana.learn_java_spring.security.BCrypt;
@@ -104,11 +105,18 @@ class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request))
         ).andExpectAll(
-                status().isUnauthorized()
+                status().isOk()
         ).andDo(result -> {
-            WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            WebResponse<TokenResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
             });
-            assertNotNull(response.getErrors());
+            assertNull(response.getErrors());
+            assertNotNull(response.getData().getToken());
+            assertNotNull(response.getData().getExpiredAt());
+
+            User userDb = userRepository.findById("test").orElse(null);
+            assertNotNull(userDb);
+            assertEquals(userDb.getToken(), response.getData().getToken());
+            assertEquals(userDb.getTokenExpiredAt(), response.getData().getExpiredAt());
         });
     }
 }

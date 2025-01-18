@@ -5,6 +5,7 @@ import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
 import krisnadwipayana.learn_java_spring.entity.User;
 import krisnadwipayana.learn_java_spring.model.RegisterUserRequest;
+import krisnadwipayana.learn_java_spring.model.UserResponse;
 import krisnadwipayana.learn_java_spring.repository.UserRepository;
 import krisnadwipayana.learn_java_spring.security.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,5 +38,12 @@ public class UserService {
         user.setName(request.getName());
 
         userRepository.save(user);
+    }
+
+    public UserResponse get(User user) {
+        return UserResponse.builder()
+                .username(user.getUsername())
+                .name(user.getName())
+                .build();
     }
 }
